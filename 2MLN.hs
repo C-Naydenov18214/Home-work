@@ -1,5 +1,5 @@
 sumP::Integer->Integer
-sumP a = sum (filter (\x -> prime x) [1..a]) 
+sumP a = sum (filter (\x -> prime x) [3,5..a]) + 2
  where
   prime::Integer->Bool
   prime a = if  (a == 1)  then  False else del a 2  
