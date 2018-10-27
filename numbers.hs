@@ -1,88 +1,45 @@
-toDecimal::Char->String->String
-toDecimal base snumber = if ( (fromEnum (base) > 48) && (fromEnum (base)  <= 57)) then ( perevoD2 (toInteger(fromEnum (base) - 48)) (reverse(snumber)) 0 1) 
-	                    else if ((fromEnum (base)  >= 97 ) && (fromEnum (base)  <= 122)) then ( perevoD2 (toInteger(fromEnum (base) - 87)) (reverse (snumber)) 0 1) 
-	                    else if ((fromEnum (base)  >= 65 ) && (fromEnum (base) <= 90)) then ( perevoD2 (toInteger(fromEnum (base) - 29)) (reverse (snumber)) 0 1 )	
-	                    	else error "ERROR"
+import Data.Char
+toDecimal::Int->String->String
+toDecimal base snumber | ((base > 1) && (base <=61)) = perevoD2 base snumber 
+                       | (base == 1) = perevoDT snumber   
+                       | otherwise = error "NE VERNUE DANNIE"
  where
- 	 	perevoD2::Integer->String->Integer->Integer->String
- 	 	perevoD2 base ("") s a =  show s
- 	 	perevoD2 base (x:xs) s a = if  (((fromEnum x) >= 48) && ((fromEnum x) <= 57) && (base > (toInteger(fromEnum x ) - 48))) then perevoD2 base (xs) (s + (a*(toInteger((fromEnum x) - 48)))) (a*base)
-	                               else if (((fromEnum x)  >= 97 ) && ((fromEnum x) <= 122) && (base > (toInteger( fromEnum x ) - 87 ))) then  perevoD2 base (xs) (s + (a*(toInteger((fromEnum x)-87)))) (a*base)
-	                               else if (((fromEnum x)  >= 65 ) && ((fromEnum x) <= 90) && (base > (toInteger(fromEnum x) - 29))) then  perevoD2 base (xs) (s + a*(toInteger((fromEnum x) - 29))) (a*base)
-	                               else perevoDT (x:xs) 0 
-	                               	   where 
-	                               		 perevoDT::String->Integer->String
-	                               		 perevoDT (x:xs) e = if ((toInteger((fromEnum x ) - 48) >1 )) then error "ERRORI????!" else if (xs == "") then (show (e)) else perevoDT (xs) (e + 1)
-
-	                    	 
-
-
-
-fromDecimal::Char->String->String
-fromDecimal base snumber = if ((fromEnum (base) > 48) && (fromEnum (base)  <= 57)) then perevoD3 (fromEnum (base) - 48) (read snumber::Int) []   
-                           else if ( (fromEnum (base)  >= 97 ) && (fromEnum (base)  <= 122) ) then perevoD3 (fromEnum (base) - 87)  (read snumber::Int) []
-                           else if ((fromEnum (base)  >= 65 ) && (fromEnum (base) <= 90)) then perevoD3 (fromEnum (base)-29) (read snumber::Int ) []                       
-                           else error "ERRROR"
-                            where
-                             perevoD3::Int->Int->[Char]->String
-                             perevoD3 base 0 cs = cs
-                             perevoD3 base chislo cs = if (base == 1) then perevoDT chislo  [] 
-                             	                       else          
-                             	                       if (mod chislo base <= 9) then perevoD3 base  (div chislo base)  ((toEnum ((mod chislo base) + 48)::Char):cs)
-                                                       else
-                                                       if ((mod chislo base >= 10) && (mod chislo base <= 35)) then perevoD3 base  (div chislo base)  ((toEnum ((mod chislo base) + 87)::Char):cs)
-                                                       else
-                                                       if ((mod chislo base >= 36) && (mod chislo base <= 61)) then (perevoD3 (base)  (div chislo base)  ((toEnum ((mod chislo base) + 29)::Char):cs))
-                                                       else if (base == 1) then perevoDT chislo  [] else error "ERROR"
-                                                          where  
-                                                            perevoDT::Int->[Char]->String
-                                                            perevoDT chislo  cs = if (chislo == -1) then (cs) else  perevoDT (chislo - 1)   ((toEnum (49)::Char):cs)
+  perevoD2::Int->String->String 
+  perevoD2 base snumber | any (\x -> (transf x) >= base) snumber  = error "ER1"   
+                        | otherwise = show (div (foldl (\sum x -> base * (sum+(transf x))) 0 snumber) base)
+                         where
+                           transf::Char->Int
+                           transf c | (ord '0' <= ord c) && (ord c <= ord '9') = ord c - ord '0'
+                                    | (ord 'a' <= ord c) && (ord c <= ord 'z') = ord c - 87
+                                    | (ord 'A' <= ord c) && (ord c <= ord 'Z') = ord c - 29                
+                                    | otherwise = error "ER2"
+  perevoDT::String->String
+  perevoDT snumber | all (== '1') snumber = show (length snumber - 1)              
+                   | otherwise = error "ERROR"
 
 
-
-
-
-convertFromTo::Char->Char->String->String
-convertFromTo fr to snumber = fromDecimal to (toDecimal fr snumber)
- where 
+fromDecimal::Int->String->String
+fromDecimal base snumber | (base >1) && (base <=61)= perevoD3 base (read snumber)
+                         | 1 == base = perevoDT snumber
+                         | otherwise = error "ERRORORORORORORORO"
+ where
+   perevoDT::String->String
+   perevoDT snumber = replicate (read snumber + 1) '1'
+   perevoD3::Int->Int->String
+   perevoD3 base 0  = ""
+   perevoD3 base snumber = perevoD3 base (div snumber base) ++ ([transfToChr (mod snumber base)])
   
-  fromDecimal::Char->String->String
-  fromDecimal base snumber = if ((fromEnum (base) > 48) && (fromEnum (base)  <= 57)) then perevoD3 (fromEnum (base) - 48) (read snumber::Int) []   
-                                 else if ( (fromEnum (base)  >= 97 ) && (fromEnum (base)  <= 122) ) then perevoD3 (fromEnum (base) - 87)  (read snumber::Int) []
-                                 else if ((fromEnum (base)  >= 65 ) && (fromEnum (base) <= 90)) then perevoD3 (fromEnum (base)-29) (read snumber::Int ) []                       
-                                 else error "ERRROR"
-                                  where
-                                   perevoD3::Int->Int->[Char]->String
-                                   perevoD3 base 0 cs = cs
-                                   perevoD3 base chislo cs = if (base == 1) then perevoDT chislo  [] 
-                             	                             else          
-                             	                             if (mod chislo base <= 9) then perevoD3 base  (div chislo base)  ((toEnum ((mod chislo base) + 48)::Char):cs)
-                                                             else
-                                                             if ((mod chislo base >= 10) && (mod chislo base <= 35)) then perevoD3 base  (div chislo base)  ((toEnum ((mod chislo base) + 87)::Char):cs)
-                                                             else
-                                                             if ((mod chislo base >= 36) && (mod chislo base <= 61)) then (perevoD3 (base)  (div chislo base)  ((toEnum ((mod chislo base) + 29)::Char):cs))
-                                                             else if (base == 1) then perevoDT chislo  [] else error "ERROR"
-                                                             where  
-                                                              perevoDT::Int->[Char]->String
-                                                              perevoDT chislo  cs = if (chislo == -1) then (cs) else  perevoDT (chislo - 1)   ((toEnum (49)::Char):cs)
-  toDecimel::Char->String->String
-  toDecimel base snumber = if ( (fromEnum (base) > 48) && (fromEnum (base)  <= 57)) then  perevoD2 (toInteger(fromEnum (base) - 48)) (reverse(snumber)) 0 1 
-	                        else if ( (fromEnum (base)  >= 97 ) && (fromEnum (base)  <= 122)) then ( perevoD2 (toInteger(fromEnum (base) - 87)) (reverse (snumber)) 0 1) 
-	                        else if ((fromEnum (base)  >= 65 ) && (fromEnum (base) <= 90)) then ( perevoD2 (toInteger(fromEnum (base) - 29)) (reverse (snumber)) 0 1 )	
-	                        else error "ERROR"
-    where
- 	 	perevoD2::Integer->String->Integer->Integer->String
- 	 	perevoD2 base ("") s a = show (s)
- 	 	perevoD2 base (x:xs) s a = if  (((fromEnum x) >= 48) && ((fromEnum x) <= 57) && (base > (toInteger(fromEnum x ) - 48))) then perevoD2 base (xs) (s + (a*(toInteger((fromEnum x) - 48)))) (a*base)
-	                               else if (((fromEnum x)  >= 97 ) && ((fromEnum x) <= 122) && (base > (toInteger( fromEnum x ) - 87 ))) then  perevoD2 base (xs) (s + (a*(toInteger((fromEnum x)-87)))) (a*base)
-	                               else if (((fromEnum x)  >= 65 ) && ((fromEnum x) <= 90) && (base > (toInteger(fromEnum x) - 29))) then  perevoD2 base (xs) (s + a*(toInteger((fromEnum x) - 29))) (a*base)
-	                               else perevoDT (x:xs) 0 
-	                               	   where 
-	                               		 perevoDT::String->Integer->String
-	                               		 perevoDT (x:xs) e = if ((toInteger((fromEnum x ) - 48) >1 )) then error "ERRORI????!" else if (xs == "") then (show (e)) else perevoDT (xs) (e + 1)                                                              
+                    where  
+                     transfToChr::Int->Char
+                     transfToChr b | '0' <= chr (b +  ord '0') && chr (b + ord '0') <= '9' = chr (b + ord '0')
+                                   | 'a' <= chr (b + 87) && chr (b + 87) <= 'z' = chr (b + 87)
+                                   | 'A' <= chr (b + 29) && chr (b + 29 ) <= 'Z' = chr (b + 29) 
 
 
 
+
+convertFromTo::Int->Int->String->String
+convertFromTo fr to snumber = fromDecimal to (toDecimal fr snumber)
                                                                 
                              	                       
                                                     
